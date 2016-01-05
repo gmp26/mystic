@@ -9,6 +9,11 @@
     border: none;
     width: 60px;
     text-align: center;
+    zoom: 2;
+}
+.inp-default:focus {
+    outline: 2px solid #CCCCCC;
+    outline-offset: 1px;
 }
 .btn-default {
     font-size: 18px;
@@ -16,7 +21,7 @@
     border-radius: 5px;
     width: 80px;
 }
-.btn-default:focus, .inp-default:focus {
+.btn-default:focus {
     outline: 5px solid #CCCCCC;
     outline-offset: 3px;
 }

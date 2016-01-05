@@ -1,7 +1,8 @@
-(ns mystic.cards
+(ns ^:figwheel-always mystic.cards
 
   (:require
    [rum.core :as rum]
+   [mystic.core :as core]
    [mystic.components :as comp])
 
   (:require-macros
@@ -15,7 +16,7 @@
    [:h1 "Devcards ok!"]])
 
 (defcard svg-container
-  (comp/mystic-rose))
+  (comp/mystic-rose core/model))
 
 
 ;; remember to run lein figwheel and then browse to
