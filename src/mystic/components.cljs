@@ -36,12 +36,40 @@
             :cx (dot-coord :x theta)
             :cy (dot-coord :y theta)}])
 
+#_(rum/defc count-input < rum/cursored [mystic-n]
+  [:span.node-count
+   [:input.inp-default
+    {:type "number"
+     :min min-nodes :max max-nodes :value @mystic-n
+     :on-change #(swap! core/model assoc :mystic-n (.parseInt js/Number (-> % .-target .-value)))}]
+   "points"])
+
+
+(rum/defc n-slider < rum/cursored [mystic-n]
+  [:input {:type "range" :value @mystic-n :min min-nodes :max max-nodes
+           :style {:width "100%"}
+           :on-change #(swap! core/model assoc
+                              :mystic-n (-> % .-target .-value))}])
+
+
 (rum/defc count-input < rum/cursored [mystic-n]
-  [:input.inp-default
-   {:type "number"
-    :min min-nodes :max max-nodes :value @mystic-n
-    :on-change (fn [event] (swap! core/model #(assoc % :mystic-n (.parseInt js/Number (.. event -target -value))) ))}]
-)
+  [:span.node-count
+   [:span
+    [:input.inp-default
+     {:type "number"
+      :min min-nodes :max max-nodes :value @mystic-n
+      :on-change #(swap! core/model assoc :mystic-n (.parseInt js/Number (-> % .-target .-value)))}]
+    "points"]
+   (n-slider (rum/cursor model [:mystic-n]))])
+
+
+(defn slider [param value min max]
+  (let [reset (case param :mystic-n :mystic-t)]
+    [:input {:type "range" :value value :min min :max max
+             :style {:width "100%"}
+             :on-change #(swap! core/model assoc
+                                param (-> % .-target .-value))}]))
+
 
 (rum/defc dots-on-circle < rum/cursored [mystic-n]
   [:g
@@ -64,14 +92,23 @@
        (semi-chord theta1 theta2))])
   )
 
+(rum/defc select-method < rum/cursored [method]
+  [:select
+   [:option 1]
+   [:option 2]
+   ])
+
+
 (rum/defc mystic-rose < rum/cursored rum/cursored-watch [model]
   [:div
-   (start-button #(prn "start"))
-   (reset-button #(prn "reset"))
+   #_(start-button #(prn "start"))
+   #_(reset-button #(prn "reset"))
+   (select-method (rum/cursor model [:method]))
    (count-input (rum/cursor model [:mystic-n]))
    [:svg {:view-box "0 0 400 400"}
     [:g
      [:circle.outlined {:fill "none" :stroke "black" :stroke-width 2 :cx 200 :cy 200 :r 190}]
      (dots-on-circle (rum/cursor model [:mystic-n]))
      (chords (rum/cursor model [:mystic-n]))
-     ]]])
+     ]]
+])

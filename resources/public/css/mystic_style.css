@@ -4,16 +4,14 @@
 }
 
 .inp-default {
-    font-size: 20px;
+    font-size: 26px;
     background-color: white;
     border: none;
-    width: 60px;
-    text-align: center;
-    zoom: 2;
+    width: 50px;
+    text-align: right;
 }
 .inp-default:focus {
-    outline: 2px solid #CCCCCC;
-    outline-offset: 1px;
+    outline: 1px solid #CCCCCC;
 }
 .btn-default {
     font-size: 18px;
@@ -36,6 +34,11 @@
     border-left: 2px solid #CCCCCC;
 }
 
+.node-count {
+    zoom: 1.5;
+    float: right;
+    width: 100px;
+}
 
 .rounded {
     border-radius: 3px;

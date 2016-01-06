@@ -11,10 +11,6 @@
 
 (enable-console-print!)
 
-(defcard devcards-ok
-  [:div
-   [:h1 "Devcards ok!"]])
-
 (defcard svg-container
   (comp/mystic-rose core/model))
 
