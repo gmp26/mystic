@@ -4,7 +4,7 @@
 
 (defonce model
   (atom {:mystic-n 10
-         :mystic-t 0}))
-
+         :mystic-t 0
+         :method 2}))
 
 ;; main entry, not yet

@@ -43,3 +43,9 @@
 .rounded {
     border-radius: 3px;
 }
+
+#methods {
+    width: 182px;
+    zoom: 1.5;
+    float: left;
+}

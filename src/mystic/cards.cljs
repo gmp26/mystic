@@ -11,8 +11,14 @@
 
 (enable-console-print!)
 
-(defcard svg-container
-  (comp/mystic-rose core/model))
+(defcard basic-mystic-rose
+  (comp/basic-mystic-rose core/model))
+
+(defcard mystic-rose
+  (comp/mystic-rose-1 core/model))
+
+(defcard mystic-rose
+  (comp/mystic-rose-2 core/model))
 
 
 ;; remember to run lein figwheel and then browse to
