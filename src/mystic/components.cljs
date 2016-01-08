@@ -5,9 +5,10 @@
    ))
 
 (def min-nodes 2)
-(def max-nodes 25)
+(def max-nodes 20)
 (def mystic-r 190)
 (def mystic-o {:x 200 :y 200})
+(def t-steps 100)
 
 (defn dot-coord [key theta]
   (+ (key mystic-o) (* mystic-r ((if (= key :x) Math.cos Math.sin) theta))))
@@ -17,6 +18,12 @@
 
 (defn thetas [n]
   (map #(i->theta n %) (range n)))
+
+(defn ramp [at width x]
+  (let [a (+ at width)]
+    (cond (< x at) 0
+          (< x (+ at width)) (/ (- x at) width)
+          :else 1)))
 
 (rum/defc dot [theta]
   [:circle {:stroke "#ffffff" :stoke-width 5 :fill "#CCCCCC" :r 4
@@ -30,10 +37,9 @@
                               :mystic-n (-> % .-target .-value))}])
 
 (rum/defc t-slider < rum/static [model t]
-  [:input {:type "range" :value (* 100 t) :min 0 :max 100
+  [:input {:type "range" :value (* t-steps t) :min 0 :max t-steps
            :style {:width "100%"}
-           :on-change #(swap! model assoc :mystic-t (/ (-> % .-target .-value) 100))
-           }])
+           :on-change #(swap! model assoc :mystic-t (/ (-> % .-target .-value) t-steps))}])
 
 (rum/defc count-input < rum/cursored [model mystic-n]
   [:span.node-count
@@ -48,44 +54,46 @@
 (rum/defc dots-on-circle < rum/cursored [mystic-n]
   [:g (map-indexed  #(rum/with-key (dot %2) %1) (thetas @mystic-n))])
 
-(rum/defc chord [theta1 theta2 t]
-  [:line {:x1 (dot-coord :x theta1)
-          :y1 (dot-coord :y theta1)
-          :x2 (+ (* (dot-coord :x theta1) (- 1 t)) (* (dot-coord :x theta2) t))
-          :y2 (+ (* (dot-coord :y theta1) (- 1 t)) (* (dot-coord :y theta2) t))
-          :stroke "#08f"
-          :stroke-width 1
-          :marker-end "url(#arrow)"
-          }])
+(defn mean [a b] (/ (+ a b) 2))
 
-#_(rum/defc chords [mystic-n mystic-t method]
-  (let [t (if (= method 1) (/ @mystic-t 2) @mystic-t)]
-    [:g
-     (for [i (range @mystic-n)
-           j (range (if (= method 1) @mystic-n i))]
-       (rum/with-key (chord (i->theta @mystic-n i) (i->theta @mystic-n j) t) [i j]))])
-  )
+(rum/defc chord [method theta1 theta2 t]
+  (let [x2 (if (= method 1)
+             (mean (dot-coord :x theta1) (dot-coord :x theta2))
+             (dot-coord :x theta2))
+        y2 (if (= method 1)
+             (mean (dot-coord :y theta1) (dot-coord :y theta2))
+             (dot-coord :y theta2))]
 
-(defn ramp [at width x]
-  (let [a (+ at width)]
-    (cond (< x at) 0
-          (< x (+ at width)) (/ (- x at) width)
-          :else 1
-          ))
-  )
+    [:line {:x1 (dot-coord :x theta1)
+            :y1 (dot-coord :y theta1)
+            :x2 (+ (* (dot-coord :x theta1) (- 1 t)) (* x2 t))
+            :y2 (+ (* (dot-coord :y theta1) (- 1 t)) (* y2 t))
+            :stroke "rgba(0,128,255,0.3)" ;"#08f"
+            :stroke-width 1
+            :marker-end (if (< t 1) "url(#arrow)" "none")}]))
+
+(defn isCursor?
+  "This at least distinguishes cursors from literal numbers .toString returns [object Object] for a Cursor"
+  [x]
+  (= (first (.toString x)) "["))
 
 (rum/defc chords [mystic-n mystic-t method]
-  (let [t (if (= method 1) (/ @mystic-t 2) @mystic-t)]
+  (let [t (if (isCursor? mystic-t)
+            (if (= method 1) (/ @mystic-t 1) @mystic-t) 1)]
     [:g
      (for [i (range @mystic-n)
-           j (range (if (= method 1) @mystic-n (if (= method 4) (- @mystic-n i) (inc i))))
+           j (range (if (#{1 2} method) @mystic-n (if (= method 4) (- @mystic-n i) (inc i))))
+           :let [i-theta (i->theta @mystic-n i)
+                 j-theta (i->theta @mystic-n j)
+                 j-theta' (i->theta @mystic-n (dec (- @mystic-n j)))
+                 ]
            ]
        (cond
-         (#{1 2} method) (rum/with-key (chord (i->theta @mystic-n i) (i->theta @mystic-n j) t) [2 i j])
-         (= method 3) (rum/with-key (chord (i->theta @mystic-n i) (i->theta @mystic-n j) (ramp (/ (dec i) @mystic-n) (/ 1 @mystic-n) t)) [3 i j])
-         (= method 4) (rum/with-key (chord (i->theta @mystic-n i) (i->theta @mystic-n (dec (- @mystic-n j))) (ramp (/ i @mystic-n) (/ 1 @mystic-n) t)) [4 i j])
-         ))])
-  )
+         ;(#{1 2} method) (rum/with-key (chord i-theta j-theta t) [2 i j])
+         (= method 1) (rum/with-key (chord method i-theta j-theta t) [1 i j])
+         (= method 2) (rum/with-key (chord method i-theta j-theta t) [2 i j])
+         (= method 3) (rum/with-key (chord method i-theta j-theta (ramp (/ (dec i) @mystic-n) (/ 1 @mystic-n) t)) [3 i j])
+         (= method 4) (rum/with-key (chord method i-theta j-theta' (ramp (/ i @mystic-n) (/ 1 @mystic-n) t)) [4 i j])))]))
 
 (rum/defc draw [model t-cursor]
   [:#methods
@@ -101,9 +109,8 @@
     [:g
      [:circle.outlined {:fill "none" :stroke "black" :stroke-width 2 :cx 200 :cy 200 :r 190}]
      (dots-on-circle (rum/cursor model [:mystic-n]))
-     (chords (rum/cursor model [:mystic-n]) (rum/cursor model [:mystic-t]) 1)
-     ]]
-   [:p (str @model)]
+     (chords (rum/cursor model [:mystic-n]) 1 2)]]
+   ; [:p (str @model)]
 ])
 
 (rum/defc mystic-rose < rum/cursored rum/cursored-watch [model method]
@@ -114,15 +121,12 @@
      [:marker {:id "arrow"
                :view-box "-1 -1 2 2"
                }
-      [:circle {:cx -2 :cy -2 :r 10 :fill "black"}]
-      ;[:path {:d "M 0 0 L 10 5 L 0 10 z"}]
-      ]]
+      [:circle {:cx -2 :cy -2 :r 10 :fill "black"}]]]
     [:g
      [:circle.outlined {:fill "none" :stroke "black" :stroke-width 2 :cx 200 :cy 200 :r 190}]
      (dots-on-circle (rum/cursor model [:mystic-n]))
      (chords (rum/cursor model [:mystic-n]) (rum/cursor model [:mystic-t]) method)
-     ]]
-])
+     ]]])
 
 (rum/defc side-by-side < rum/cursored rum/cursored-watch [model]
   [:div
@@ -130,5 +134,21 @@
    (count-input model (rum/cursor model [:mystic-n]))
    [:div {:style {:clear "both"}}
     (mystic-rose model 1) (mystic-rose model 2)]
-   [:div (mystic-rose model 3) (mystic-rose model 4)]]
-  )
+   [:div (mystic-rose model 3) (mystic-rose model 4)]])
+
+
+(rum/defc stars < rum/cursored rum/cursored-watch [model method]
+  [:div {:style {:display "inline-block" :width "100%"}}
+   (draw model (rum/cursor model [:mystic-t]))
+   (count-input model (rum/cursor model [:mystic-n]))
+   [:svg {:view-box "0 0 400 400"}
+    [:defs
+     [:marker {:id "arrow"
+               :view-box "-1 -1 2 2"
+               }
+      [:circle {:cx -2 :cy -2 :r 10 :fill "black"}]]]
+    [:g
+     [:circle.outlined {:fill "none" :stroke "black" :stroke-width 2 :cx 200 :cy 200 :r 190}]
+     (dots-on-circle (rum/cursor model [:mystic-n]))
+     (chords (rum/cursor model [:mystic-n]) (rum/cursor model [:mystic-t]) method)
+     ]]])

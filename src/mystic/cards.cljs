@@ -14,5 +14,8 @@
 #_(defcard basic-mystic-rose
   (comp/basic-mystic-rose core/model))
 
-(defcard two-draw-methods
+(defcard four-draw-methods
   (comp/side-by-side core/model))
+
+#_(defcard stars
+  (comp/stars core/model 2))
