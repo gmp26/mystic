@@ -1,4 +1,4 @@
-(defproject mystic "0.1.0-SNAPSHOT"
+(defproject mystic "0.1.0"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -7,10 +7,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
                  [devcards "0.2.1"]
-                 [rum "0.6.0"]
-                 #_[sablono "0.4.0"]
-                 #_[org.omcljs/om "0.9.0"]
-                 #_[reagent "0.5.1"]]
+                 [rum "0.6.0"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-1"]]
@@ -32,16 +29,18 @@
                        {:id "dev"
                         :source-paths ["src"]
                         :figwheel true
-                        :compiler {:main       "mystic.core"
+                        :compiler {:main       "mystic.main"
                                    :asset-path "js/compiled/out"
                                    :output-to  "resources/public/js/compiled/mystic.js"
                                    :output-dir "resources/public/js/compiled/out"
                                    :source-map-timestamp true }}
-                       {:id "prod"
+                       {:id "min"
                         :source-paths ["src"]
-                        :compiler {:main       "mystic.core"
+                        :compiler {:main       "mystic.main"
+                                   :externs ["resources/externs/svg.js"]
                                    :asset-path "js/compiled/out"
                                    :output-to  "resources/public/js/compiled/mystic.js"
+                                   :output-dir "resources/public/js/compiled/prod"
                                    :optimizations :advanced}}]}
 
   :figwheel { :css-dirs ["resources/public/css"] })

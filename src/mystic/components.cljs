@@ -115,8 +115,8 @@
 
 (rum/defc mystic-rose
   [model method]
-  [:div {:style {:display "inline-block" :width "50%"}}
-   [:strong (str "Method " method)]
+  [:div {:style {:padding "2%" :display "inline-block" :width "46%"}}
+   [:strong (str "Draw using method " method)]
    (draw model method (rum/cursor model [:mystic-t (dec method)]))
    [:svg {:view-box "0 0 400 400"}
     [:defs

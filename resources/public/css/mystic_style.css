@@ -1,4 +1,8 @@
 /* mystic CSS */
+body {
+    font-family: sans-serif;
+}
+
 .outlined {
     fill: white;
 }
