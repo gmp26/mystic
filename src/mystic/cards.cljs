@@ -11,7 +11,7 @@
 
 (enable-console-print!)
 
-#_(defcard basic-mystic-rose
+(defcard basic-mystic-rose
   (comp/basic-mystic-rose core/model))
 
 (defcard four-draw-methods

@@ -5,7 +5,7 @@
    ))
 
 (def min-nodes 2)
-(def max-nodes 12)
+(def max-nodes 16)
 (def mystic-r 190)
 (def mystic-o {:x 200 :y 200})
 (def t-steps 100)
@@ -100,11 +100,8 @@
          (= method 4) (rum/with-key (chord method i-theta j-theta' (ramp (/ i @mystic-n) (/ 1 @mystic-n) t)) [4 i j])))]))
 
 (rum/defc draw [model method t-cursor]
-  [:#methods
-   [:div {:key 1
-          :style {:margin-top "10px"}} "Draw"]
-   [:div {:key 2}
-    (t-slider model method @t-cursor)]])
+  [:.slider
+   (t-slider model method @t-cursor)])
 
 (rum/defc basic-mystic-rose < rum/cursored rum/cursored-watch [model]
   [:div
@@ -120,6 +117,7 @@
   [model method]
   [:div {:style {:display "inline-block" :width "50%"}}
    [:strong (str "Method " method)]
+   (draw model method (rum/cursor model [:mystic-t (dec method)]))
    [:svg {:view-box "0 0 400 400"}
     [:defs
      [:marker {:id "arrow"
@@ -134,10 +132,9 @@
 
 (rum/defc side-by-side < rum/cursored rum/cursored-watch [model]
   [:div
-   (draw model 1 (rum/cursor model [:mystic-t 0]))
-   (draw model 2 (rum/cursor model [:mystic-t 1]))
-   (draw model 3 (rum/cursor model [:mystic-t 2]))
-   (draw model 4 (rum/cursor model [:mystic-t 3]))
+   ;(draw model 2 (rum/cursor model [:mystic-t 1]))
+   ;(draw model 3 (rum/cursor model [:mystic-t 2]))
+   ;(draw model 4 (rum/cursor model [:mystic-t 3]))
    (count-input model (rum/cursor model [:mystic-n]))
    [:div {:style {:clear "both"}}
     (mystic-rose model 1) (mystic-rose model 2)]
